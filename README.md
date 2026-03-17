@@ -31,5 +31,5 @@ InfraRadar is a full-stack data pipeline designed to scrape, analyze, and visual
 ## 🚦 Getting Started
 1. Clone the repository: `git clone https://github.com/yourusername/InfraRadar.git`
 2. Install dependencies: `pip install -r requirements.txt`
-3. Add your Groq API Key to a `.env` file.
+3. Add your Groq API Key in radar_brain.py
 4. Run the pipeline: `python main.py`
