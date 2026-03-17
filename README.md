@@ -26,7 +26,7 @@ InfraRadar is a full-stack data pipeline designed to scrape, analyze, and visual
 * **Security:** API key management via environment variables for safe deployment.
 
 ## 📸 Dashboard Preview
-*(Insert your Screenshot here)*
+*<img width="1090" height="662" alt="Screenshot 2026-03-17 212433" src="https://github.com/user-attachments/assets/8feec378-173a-4a22-a28a-6386d68d1da2" />*
 
 ## 🚦 Getting Started
 1. Clone the repository: `git clone https://github.com/yourusername/InfraRadar.git`
