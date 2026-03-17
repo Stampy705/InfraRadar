@@ -1,0 +1,4 @@
+customtkinter
+matplotlib
+groq
+python-dotenv
