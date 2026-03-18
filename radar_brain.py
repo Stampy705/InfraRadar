@@ -1,12 +1,12 @@
 import sqlite3
 import json
 import time
-from groq import Groq # <-- Changed the import
+from groq import Groq 
 
-# 1. Connect the Brain 
+
 # Grab your new API key from console.groq.com
 GROQ_API_KEY=your_actual_key_here
-client = Groq(api_key=API_KEY) # <-- Initialized the Groq client
+client = Groq(api_key=API_KEY) 
 
 def analyze_pending_contracts():
     print("🧠 InfraRadar Brain: Booting up Groq AI analysis module...")
