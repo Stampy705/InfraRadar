@@ -29,14 +29,12 @@ def calculate_market_cap(contracts_list):
             number = float(match.group(1).replace(",", ""))
             unit = match.group(2).lower()
             if "lakh crore" in unit:
-                number *= 100000  # convert lakh crore -> crore
+                number *= 100000
             total += number
     
     return float(total)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# THEME CONSTANTS 
-# ─────────────────────────────────────────────────────────────────────────────
+
 C = {
     "bg_root":       "#0D0F12", "bg_panel":      "#12151A", "bg_card":       "#181C23",
     "bg_header":     "#0A0C10", "bg_tree":       "#12151A", "bg_tree_sel":   "#1A3A5C",
@@ -110,12 +108,11 @@ class InfraRadarApp(ctk.CTk):
                                            fg_color=C["bg_input"], border_color=C["border_bright"])
         self.filter_combo.pack(side="right")
 
-        # Export Button
         self.export_btn = ctk.CTkButton(top_row, 
                                        text="Generate Report (Excel)", 
                                        font=C["font_ui_sm"],
                                        width=160, height=26,
-                                       fg_color="#1A3A5C", # Professional Navy
+                                       fg_color="#1A3A5C",
                                        hover_color=C["accent_dim"],
                                        command=self._export_to_csv)
         self.export_btn.pack(side="right", padx=(0, 10))
@@ -138,8 +135,6 @@ class InfraRadarApp(ctk.CTk):
         left_wrap = ctk.CTkFrame(body, fg_color=C["bg_panel"], corner_radius=8, border_width=1, border_color=C["border"])
         left_wrap.pack(side="left", fill="both", expand=True, padx=(0, 7))
 
-        # Chart is packed to bottom FIRST so it reserves its height before
-        # the treeview's expand=True consumes all remaining vertical space.
         self._build_market_chart(left_wrap)
         self._build_grid_toolbar(left_wrap)
         self._build_treeview(left_wrap)
@@ -242,14 +237,13 @@ class InfraRadarApp(ctk.CTk):
         self.url_button = ctk.CTkButton(scroll_frame, text="Open Tender Portal  ↗", font=("Segoe UI", 11), height=34, fg_color=C["bg_input"], text_color=C["accent"], border_width=1, border_color=C["border_bright"], command=self._open_url, state="disabled")
         self.url_button.pack(fill="x", padx=18, pady=(6, 20))
 
-        # ── Delete Button ──────────────────────────────────────────
         self.delete_button = ctk.CTkButton(scroll_frame,
             text          = "Scrap Lead (Delete)",
             font          = ("Segoe UI", 11),
             height        = 34,
-            fg_color      = "#2A1010", # Dark red
+            fg_color      = "#2A1010",
             hover_color   = "#4A1010",
-            text_color    = "#FF4D6A", # Accent red
+            text_color    = "#FF4D6A",
             border_width  = 1,
             border_color  = "#4A2020",
             corner_radius = 6,
@@ -258,11 +252,8 @@ class InfraRadarApp(ctk.CTk):
         )
         self.delete_button.pack(fill="x", padx=18, pady=(0, 20))
 
-    # ── Market Value Chart ─────────────────────────────────────────────────────
-
     def _aggregate_by_city(self, contracts):
         """Reuse calculate_market_cap parsing logic, bucketed per city."""
-        # Expanded Master List of Maharashtra Hubs
         known_cities = [
             "Mumbai", "Pune", "Nagpur", "Nashik", "Thane", "Navi Mumbai", 
             "Chhatrapati Sambhaji Nagar", "Aurangabad", "Solapur", "Amravati", 
@@ -289,7 +280,6 @@ class InfraRadarApp(ctk.CTk):
             location = c.get("location", "")
             assigned = False
             
-            # Check for city matches in the location string
             for city in known_cities:
                 if city.lower() in location.lower():
                     city_totals[city] += number
@@ -298,11 +288,9 @@ class InfraRadarApp(ctk.CTk):
             if not assigned:
                 other_total += number
 
-        # Merge new and old names for the chart (e.g., combine Aurangabad into Chhatrapati Sambhaji Nagar)
         city_totals["Chhatrapati Sambhaji Nagar"] += city_totals.pop("Aurangabad", 0)
         city_totals["Ahilyanagar"] += city_totals.pop("Ahmednagar", 0)
 
-        # Only show cities that actually have budget data
         result = {k: v for k, v in city_totals.items() if v > 0}
         if other_total > 0:
             result["Other"] = other_total
@@ -310,15 +298,13 @@ class InfraRadarApp(ctk.CTk):
         return result
 
     def _build_market_chart(self, parent):
-        """Build the dark-mode Matplotlib bar chart frame and embed it at the
-        bottom of the left panel.  Fixed height so the treeview above it keeps
-        its expand behaviour."""
+        """Build the dark-mode Matplotlib bar chart and embed it at the bottom
+        of the left panel with fixed height."""
         chart_outer = ctk.CTkFrame(parent, fg_color=C["bg_panel"],
                                    corner_radius=0, height=230)
         chart_outer.pack(side="bottom", fill="x")
         chart_outer.pack_propagate(False)
 
-        # ── Section header bar ──────────────────────────────────────────────
         hdr = ctk.CTkFrame(chart_outer, fg_color=C["bg_root"],
                            corner_radius=0, height=28)
         hdr.pack(fill="x")
@@ -327,11 +313,9 @@ class InfraRadarApp(ctk.CTk):
                      font=("Consolas", 9, "bold"),
                      text_color=C["fg_secondary"]).pack(side="left", padx=12, pady=4)
 
-        # Thin accent separator below the header
         ctk.CTkFrame(chart_outer, fg_color=C["border"],
                      height=1, corner_radius=0).pack(fill="x")
 
-        # ── Matplotlib figure ───────────────────────────────────────────────
         chart_host = ctk.CTkFrame(chart_outer, fg_color=C["bg_panel"], corner_radius=0)
         chart_host.pack(fill="both", expand=True)
 
@@ -373,16 +357,13 @@ class InfraRadarApp(ctk.CTk):
         cities = list(city_data.keys())
         values = list(city_data.values())
 
-        # ── Bars ──────────────────────────────────────────────────────────
         bars = ax.bar(cities, values, color=BAR_CLR, width=0.52,
                       zorder=3, linewidth=0)
 
-        # Subtle gradient-like top highlight on each bar
         for bar in bars:
             bar.set_edgecolor("#40C4FF")
             bar.set_linewidth(0.6)
 
-        # ── Value labels above each bar ───────────────────────────────────
         for bar, val in zip(bars, values):
             label = f"₹{val:,.0f}" if val < 1_000 else f"₹{val/1000:,.1f}K"
             ax.text(bar.get_x() + bar.get_width() / 2.0,
@@ -392,7 +373,6 @@ class InfraRadarApp(ctk.CTk):
                     color=LABEL_CLR, fontsize=7,
                     fontfamily="Consolas")
 
-        # ── Axes styling ──────────────────────────────────────────────────
         ax.set_ylabel("Total Value (Cr)", color=LABEL_CLR, fontsize=7.5,
                       labelpad=6, fontfamily="Consolas")
         ax.tick_params(axis="both", colors=LABEL_CLR, labelsize=7.5, length=0)
@@ -406,7 +386,6 @@ class InfraRadarApp(ctk.CTk):
         for label in ax.get_yticklabels():
             label.set_fontfamily("Consolas")
 
-        # Only show bottom and left spines; style them subtly
         for side, spine in ax.spines.items():
             if side in ("top", "right"):
                 spine.set_visible(False)
@@ -414,27 +393,26 @@ class InfraRadarApp(ctk.CTk):
                 spine.set_edgecolor(GRID_CLR)
                 spine.set_linewidth(0.8)
 
-        # Horizontal grid only, behind bars
         ax.yaxis.grid(True, color=GRID_CLR, linestyle="--",
                       linewidth=0.5, alpha=0.6, zorder=0)
         ax.set_axisbelow(True)
 
-        # Set y-limit with headroom for value labels
         max_val = max(values) if values else 1
         ax.set_ylim(0, max_val * 1.35)
 
         self._chart_fig.tight_layout(pad=0.6)
         self._chart_canvas.draw()
 
-    # ── Helpers ────────────────────────────────────────────────────────────────
-
     def _field_label(self, parent, text, top_pad=10):
+        """Create a styled field label."""
         ctk.CTkLabel(parent, text=text, font=("Consolas", 9), text_color=C["fg_muted"], anchor="w").pack(fill="x", padx=18, pady=(top_pad, 0))
 
     def _divider(self, parent):
+        """Create a horizontal divider line."""
         ctk.CTkFrame(parent, fg_color=C["border"], height=1, corner_radius=0).pack(fill="x", padx=18, pady=2)
 
     def _populate_grid(self, contracts):
+        """Populate the treeview with contract data and update statistics."""
         for iid in self.tree.get_children():
             self.tree.delete(iid)
 
@@ -443,23 +421,23 @@ class InfraRadarApp(ctk.CTk):
             if i % 2 == 1: tags.append("alt_row")
             self.tree.insert("", "end", iid=str(i), values=(c["status"], c["title"], c["budget"], c["deadline"]), tags=tags)
 
-        # Trigger Real-Time Stats
         total_cr = calculate_market_cap(contracts)
         self.total_value_lbl.configure(text=f"MARKET VALUE: ₹ {total_cr:,.2f} Cr")
         self.lead_count_lbl.configure(text=f"ACTIVE LEADS: {len(contracts)}")
         self.count_lbl.configure(text=f"  {len(contracts)} records  ")
 
-        # Sync bar chart — guard handles the brief window before the chart is built
         if hasattr(self, "_chart_canvas"):
             self._update_market_chart(contracts)
 
     def _on_filter_change(self, choice):
+        """Apply location filter and refresh the grid."""
         pred = LOCATION_FILTERS.get(choice, lambda c: True)
         filtered = [c for c in CONTRACTS if pred(c)]
         self._populate_grid(filtered)
         self._clear_detail()
 
     def _on_row_select(self, event):
+        """Handle treeview row selection and populate detail pane."""
         sel = self.tree.selection()
         if not sel: return
         idx = int(sel[0])
@@ -488,6 +466,7 @@ class InfraRadarApp(ctk.CTk):
         self.delete_button.configure(state="normal")
 
     def _clear_detail(self):
+        """Clear the detail pane and disable interactive elements."""
         self._selected_contract = None
         self.detail_status_badge.configure(text="")
         self.detail_title.configure(text="— Select a contract —")
@@ -500,16 +479,16 @@ class InfraRadarApp(ctk.CTk):
         self.delete_button.configure(state="disabled")
 
     def _open_url(self):
+        """Open the tender portal URL in browser."""
         if self._selected_contract and "url" in self._selected_contract:
             webbrowser.open(self._selected_contract["url"])
 
     def _on_delete_contract(self):
+        """Delete selected contract from database and refresh UI."""
         if self._selected_contract:
             c_id = self._selected_contract['id']
-            # Remove from Database
             db.delete_contract(c_id)
             
-            # Refresh Local Memory and UI
             global CONTRACTS
             CONTRACTS = db.get_all_contracts()
             self._on_filter_change(self._filter_var.get())
@@ -517,7 +496,7 @@ class InfraRadarApp(ctk.CTk):
             print(f"🗑️ Record {c_id} moved to scrap pile.")
 
     def _export_to_csv(self):
-        # 1. Ask the user where to save the file
+        """Export filtered contracts to CSV file."""
         file_path = filedialog.asksaveasfilename(
             defaultextension=".csv",
             filetypes=[("CSV Files", "*.csv")],
@@ -527,7 +506,6 @@ class InfraRadarApp(ctk.CTk):
         if not file_path:
             return
 
-        # 2. Grab the currently filtered list of contracts
         choice = self._filter_var.get()
         pred = LOCATION_FILTERS.get(choice, lambda c: True)
         filtered_data = [c for c in CONTRACTS if pred(c)]
@@ -536,7 +514,6 @@ class InfraRadarApp(ctk.CTk):
             print("⚠️ No data to export.")
             return
 
-        # 3. Write to CSV
         try:
             keys = filtered_data[0].keys()
             with open(file_path, 'w', newline='', encoding='utf-8') as output_file:
@@ -546,6 +523,7 @@ class InfraRadarApp(ctk.CTk):
             print(f"📊 Report Exported: {file_path}")
         except Exception as e:
             print(f"❌ Export failed: {e}")
+
 
 if __name__ == "__main__":
     app = InfraRadarApp()
