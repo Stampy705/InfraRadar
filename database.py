@@ -45,15 +45,11 @@ class InfraRadarDB:
         self.cursor.execute("DELETE FROM contracts WHERE id = ?", (contract_id,))
         self.conn.commit()
 
-    # ─────────────────────────────────────────────────────────────────────────────
-    # THE NEW CLEANUP TOOL (Added inside the Class)
-    # ─────────────────────────────────────────────────────────────────────────────
     def cleanup_expired_leads(self):
         """Checks dates and marks past deadlines as 'Taken'."""
         print("🧹 Running Database Cleanup...")
         today = datetime.date.today()
-        
-        # 1. Grab all active leads
+    
         self.cursor.execute(
             "SELECT id, deadline FROM contracts WHERE status IN ('Upcoming', 'Available')"
         )
@@ -63,16 +59,13 @@ class InfraRadarDB:
         for row in rows:
             deadline_str = row['deadline']
             
-            # Skip if there's no date to parse
             if deadline_str in ('TBD', 'Pending', 'TBA') or not deadline_str:
                 continue
             
             try:
-                # 2. Parse the string into a real Python date object
-                # format: DD-MM-YYYY
+    
                 deadline_date = datetime.datetime.strptime(deadline_str, '%d-%m-%Y').date()
-                
-                # 3. If the date is older than today, it's expired!
+            
                 if deadline_date < today:
                     self.cursor.execute(
                         "UPDATE contracts SET status = ? WHERE id = ?",
@@ -80,7 +73,6 @@ class InfraRadarDB:
                     )
                     updated_count += 1
             except ValueError:
-                # If the date format is weird, we skip it instead of crashing
                 continue
         
         self.conn.commit()
