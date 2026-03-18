@@ -2,7 +2,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from database import InfraRadarDB
 
-def run_scraper(): # <--- Wrap it in this function
+def run_scraper():
     print("📡 InfraRadar Eyes: Sweeping for Civic & Municipal Projects...")
     url = 'https://news.google.com/rss/search?q=Maharashtra+(municipal+OR+civic+OR+infrastructure+OR+tender+OR+project)+(lakh+OR+crore)&hl=en-IN&gl=IN&ceid=IN:en'
     
